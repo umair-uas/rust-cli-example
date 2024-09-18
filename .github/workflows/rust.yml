@@ -1,4 +1,4 @@
-name: Ruston
+name: Rust build
 
 on:
   push:
@@ -14,13 +14,14 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v3   
-
+      - uses: actions/checkout@v3   
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          rust-version: 1.75.0  # Adjust the version as needed
+          profile: minimal  # Minimal installation to speed up CI
+          toolchain: stable  # Use stable version, or adjust to a specific version if needed
+          components: clippy, rustfmt
 
       - name: Build
         run: cargo build --verbose
@@ -29,13 +30,16 @@ jobs:
         run: cargo test --verbose
 
       - name: Run examples (optional)
-        run: cargo run --example no-modules  # Replace 'no-modules' with your example name
+        run: cargo run --example no-modules  # Replace 'no-modules' with the correct example
 
       - name: Lint
         run: cargo clippy --all-targets --verbose
 
       - name: Format
         run: cargo fmt --all --verbose
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
 
       - name: Check for unused dependencies
         run: cargo audit --verbose
