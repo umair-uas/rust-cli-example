@@ -26,11 +26,14 @@ jobs:
       - name: Build
         run: cargo build --verbose
 
+      - name: List available devices
+        run: lsblk  # List block devices to check what is available
+
       - name: Run tests
         run: cargo test --verbose
 
-      - name: Run examples (optional)
-        run: cargo run --example no-modules  # Replace 'no-modules' with the correct example
+      - name: Run example with a device argument
+        run: cargo run --example no-modules -- /dev/sda  # Replace with a valid device listed from the lsblk output
 
       - name: Lint
         run: cargo clippy --all-targets --verbose
