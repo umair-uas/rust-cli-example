@@ -33,7 +33,7 @@ jobs:
         run: cargo test --verbose
 
       - name: Run example with a device argument
-        run: cargo run --example no-modules -- /dev/sda  # Replace with a valid device listed from the lsblk output
+        run: cargo run --example no-modules -- sda  # Replace with a valid device listed from the lsblk output
 
       - name: Lint
         run: cargo clippy --all-targets --verbose
