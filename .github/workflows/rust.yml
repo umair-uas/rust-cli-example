@@ -16,6 +16,32 @@ jobs:
     steps:
       - uses: actions/checkout@v3   
 
+      # Cache cargo dependencies
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache cargo index
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/index
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+
+      # Cache target directory for build artifacts
+      - name: Cache target directory
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -27,13 +53,18 @@ jobs:
         run: cargo build --verbose
 
       - name: List available devices
-        run: lsblk  # List block devices to check what is available
+        run: |
+          lsblk
+          DEVICE=$(lsblk -d -n -o NAME,TYPE | grep 'disk' | head -n 1 | awk '{print $1}')
+          echo "Found device: /dev/$DEVICE"
 
       - name: Run tests
         run: cargo test --verbose
 
-      - name: Run example with a device argument
-        run: cargo run --example no-modules -- sda  # Replace with a valid device listed from the lsblk output
+      - name: Run example with found device
+        run: |
+          DEVICE=$(lsblk -d -n -o NAME,TYPE | grep 'disk' | head -n 1 | awk '{print $1}')
+          cargo run --example no-modules -- "/dev/$DEVICE"
 
       - name: Lint
         run: cargo clippy --all-targets --verbose
@@ -45,4 +76,4 @@ jobs:
         run: cargo install cargo-audit
 
       - name: Check for unused dependencies
-        run: cargo audit --verbose
+        run: cargo audit 
