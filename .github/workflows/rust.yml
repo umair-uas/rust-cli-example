@@ -11,16 +11,16 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4   
+      - uses: actions/checkout@v3   
 
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          rust-version: 1.72.0  # Adjust the version as needed
+          rust-version: 1.75.0  # Adjust the version as needed
 
       - name: Build
         run: cargo build --verbose
